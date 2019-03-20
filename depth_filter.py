@@ -74,6 +74,7 @@ def main(args_input = sys.argv[1:]):
     args = parser.parse_args(args_input)
     vcf_reader  = create_vcf_reader(args)
     vcf_writer = create_vcf_writer(args, vcf_reader)
+    na_err=True
 
     for entry in vcf_reader:
         def getFormatField(sample_name, field_name):
@@ -81,16 +82,15 @@ def main(args_input = sys.argv[1:]):
                 return entry.call_for_sample[sample_name].data[field_name]
             return("NA")
 
-        def missingVals(arr):
-            for i in arr:
-                if i == "NA":
-                    return True
-            return False
-
         filter=False
         for samp in args.sample_names.split(","):
             depth = getFormatField(samp,args.site_depth_field)
-            if(depth < args.minimum_depth):
+            if(depth=="NA"):
+                if na_err:
+                    print("WARNING: One or more sites lack the {} field. Those are being treated as zero and filtered".format(args.site_depth_field))
+                    na_err=False
+                filter=True
+            elif(depth < args.minimum_depth):
                 filter=True
 
         if filter==True:
