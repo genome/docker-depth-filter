@@ -94,7 +94,7 @@ def main(args_input = sys.argv[1:]):
                 filter=True
 
         if filter==True:
-            entry.FILTER.append(args.filter_field);
+            entry.add_filter(args.filter_field);
 
         vcf_writer.write_record(entry)
 
